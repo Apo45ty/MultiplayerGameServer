@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import games.apolion.http.authentication.Session;
 import games.apolion.http.authentication.Token;
-import games.apolion.http.persistance.GameDescriptor;
 import games.apolion.http.persistance.Users;
 import games.apolion.http.persistance.UsersRepository;
 import games.apolion.http.recaptcha.ICaptchaService;
+import games.apolion.http.updConfig.GameDescriptor;
 import games.apolion.http.updConfig.UPDServerConfig;
 import games.apolion.udp.GameServerStates;
 import games.apolion.udp.TempInGameGameStateLogic;

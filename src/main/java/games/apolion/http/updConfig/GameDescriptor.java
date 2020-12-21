@@ -1,7 +1,8 @@
-package games.apolion.http.persistance;
+package games.apolion.http.updConfig;
 
 import java.util.List;
 
+import games.apolion.http.persistance.Users;
 import games.apolion.udp.GameServerStates;
 
 public class GameDescriptor {
