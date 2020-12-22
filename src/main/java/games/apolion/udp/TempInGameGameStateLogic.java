@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 
 import games.apolion.http.authentication.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TempInGameGameStateLogic implements GameStateLogic {
 
+	Logger LOG = LoggerFactory.getLogger(TempInGameGameStateLogic.class);
 	@Override
 	public void tick(UDPGameServer owner) {
 		MessageObject mObj = owner.getGlobalQueue().poll();
@@ -59,7 +62,7 @@ public class TempInGameGameStateLogic implements GameStateLogic {
 						buf = (mObj.getMessage() + "token:" + s.t.token).getBytes();
 						DatagramPacket packet = new DatagramPacket(buf, buf.length, s.t.ip, s.t.getChatPort());
 
-//							System.out.println(s.t.ip+ "|" + s.t.port + "|" + received);
+							LOG.info(s.t.ip+ "|" + s.t.port + "|");
 						try {
 							owner.getSocket().send(packet);
 						} catch (IOException e) {

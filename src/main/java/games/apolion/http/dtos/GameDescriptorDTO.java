@@ -1,11 +1,11 @@
-package games.apolion.http.updConfig;
+package games.apolion.http.dtos;
 
 import java.util.List;
 
 import games.apolion.http.persistance.Users;
 import games.apolion.udp.GameServerStates;
 
-public class GameDescriptor {
+public class GameDescriptorDTO {
 	public String serverName;
 	public int port;
 	public String ip;
@@ -13,10 +13,10 @@ public class GameDescriptor {
 	public String host;
 	public GameServerStates state;
 	public String errorMessage;
-	public GameDescriptor() {
+	public GameDescriptorDTO() {
 		// TODO Auto-generated constructor stub
 	}
-	public GameDescriptor(String serverName, int port, String ip, Iterable<String> users,String host) {
+	public GameDescriptorDTO(String serverName, int port, String ip, Iterable<String> users, String host) {
 		super();
 		this.serverName = serverName;
 		this.port = port;

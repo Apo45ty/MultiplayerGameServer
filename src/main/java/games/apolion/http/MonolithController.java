@@ -6,12 +6,14 @@ import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
+import games.apolion.http.dtos.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +29,7 @@ import games.apolion.http.authentication.Token;
 import games.apolion.http.persistance.Users;
 import games.apolion.http.persistance.UsersRepository;
 import games.apolion.http.recaptcha.ICaptchaService;
-import games.apolion.http.updConfig.GameDescriptor;
+import games.apolion.http.dtos.GameDescriptorDTO;
 import games.apolion.http.updConfig.UPDServerConfig;
 import games.apolion.udp.GameServerStates;
 import games.apolion.udp.TempInGameGameStateLogic;
@@ -39,10 +41,6 @@ import games.apolion.udp.UDPGameServer;
 @RestController
 public class MonolithController {
 	
-	@Value( "${apolion.games.UDPbaseport}")
-	private static int basePort;
-	@Value( "${apolion.games.UDPmessagebuffersize}")
-	private static int bufSize;
 	public static int maxNumberOfServers = 2;
 	List<ThreadGame> GameServersInfo = new LinkedList<ThreadGame>();
 	
@@ -164,13 +162,13 @@ public class MonolithController {
 	}
 	
 	@GetMapping(path = "/GetGameDescriptorFromName", consumes = "application/json", produces = "application/json")
-	public GameDescriptor getGameDescriptorFromName(@RequestHeader("accesstoken") String token,
-			@RequestParam String gamename) {
+	public GameDescriptorDTO getGameDescriptorFromName(@RequestHeader("accesstoken") String token,
+													   @RequestParam String gamename) {
 		if (hasToken(token) == null)
 			return null;
 		for (ThreadGame tg : GameServersInfo) {
 			if (tg.server.getName().equals(gamename)) {
-				GameDescriptor descriptor = new GameDescriptor();
+				GameDescriptorDTO descriptor = new GameDescriptorDTO();
 				descriptor.port = tg.server.getPort();
 				descriptor.ip = tg.server.getIP();
 				descriptor.serverName = tg.server.getName();
@@ -206,7 +204,7 @@ public class MonolithController {
 	}
 
 	@PostMapping(path = "/HostGame", consumes = "application/json", produces = "application/json")
-	public GameDescriptor hostGame(@RequestHeader("accesstoken") String token) {
+	public GameDescriptorDTO hostGame(@RequestHeader("accesstoken") String token) {
 		Session session = hasToken(token);
 		if (session == null)
 			return null;
@@ -220,7 +218,7 @@ public class MonolithController {
 			}
 		}
 		if (server != null) {
-			GameDescriptor descriptor = new GameDescriptor();
+			GameDescriptorDTO descriptor = new GameDescriptorDTO();
 			descriptor.port = server.getPort();
 			descriptor.ip = server.getIP();
 			descriptor.serverName = server.getName();
@@ -238,7 +236,7 @@ public class MonolithController {
 	}
 
 	@PostMapping(path = "/JoinAnyGame", consumes = "application/json", produces = "application/json")
-	public GameDescriptor joinAnyGame(@RequestHeader("accesstoken") String token) {
+	public GameDescriptorDTO joinAnyGame(@RequestHeader("accesstoken") String token) {
 		Session session = hasToken(token);
 		if (session == null)
 			return null;
@@ -246,7 +244,7 @@ public class MonolithController {
 			return null;
 		// TODO select Game Room
 		UDPGameServer server = GameServersInfo.get(0).server;
-		GameDescriptor descriptor = new GameDescriptor();
+		GameDescriptorDTO descriptor = new GameDescriptorDTO();
 		descriptor.port = server.getPort();
 		descriptor.ip = server.getIP();
 		descriptor.serverName = server.getName();
@@ -265,7 +263,7 @@ public class MonolithController {
 	}
 
 	@PostMapping(path = "/LeaveGame", consumes = "application/json", produces = "application/json")
-	public GameDescriptor leaveGame(@RequestHeader("accesstoken") String token) {
+	public GameDescriptorDTO leaveGame(@RequestHeader("accesstoken") String token) {
 		Session session = hasToken(token);
 		if (session == null)
 			return null;
@@ -282,22 +280,38 @@ public class MonolithController {
 		return null;
 	}
 	@PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
-	public void addUser(@RequestBody Users user,@RequestHeader("g-recaptcha-response") String captcha) {
-		userRepository.save(user);
+	public void addUser(@RequestBody UsersDTO user, @RequestHeader("g-recaptcha-response") String captcha) {
+		userRepository.save(convertToUsers(user));
 	}
 
 	@RequestMapping(path = "/users", produces = "application/json")
-	public Iterable<Users> openendedusers(@RequestHeader("accesstoken") String token) {
+	public Iterable<UsersDTO> openendedusers(@RequestHeader("accesstoken") String token,
+											 @RequestParam Optional<Integer> pageNumber, @RequestParam Optional<Integer> pageSize) {
 		if (hasToken(token) == null)
 			return null;
-		return userRepository.findAll();
+		int pageS = 20;
+		int pageN = 0;
+		if(pageNumber.isPresent())
+		{
+			pageN = pageNumber.get();
+		}
+		if(pageSize.isPresent())
+		{
+			pageS = pageSize.get();
+		}
+		Iterable<Users> temp = userRepository.findAll(PageRequest.of(pageN,pageS));
+		List<UsersDTO> result = new LinkedList<UsersDTO>();
+		for(Users user : temp){
+			result.add(convertToUsersDTO(user));
+		}
+		return  result;
 	}
 
 	@GetMapping("/user")
-	public Users game(@RequestParam String username, @RequestHeader("accesstoken") String token) {
+	public UsersDTO game(@RequestParam String username, @RequestHeader("accesstoken") String token) {
 		if (hasToken(token) == null)
 			return null;
-		return userRepository.findByUsername(username);
+		return convertToUsersDTO(userRepository.findByUsername(username));
 	}
 //	@PostMapping(path = "/contact", consumes = "application/json", produces = "application/json")
 //	public void contact(@RequestBody ContactForm form, HttpServletRequest request,@RequestHeader("g-recaptcha-response") String captcha) {
@@ -346,5 +360,12 @@ public class MonolithController {
 		}
 		return new Token("Invalid Credentials");
 	}
+	private Users convertToUsers(UsersDTO usersDTO){
+		return new Users(usersDTO.getUsername(),usersDTO.getPasswordhash(),usersDTO.getEmail());
+	}
 
+
+	private UsersDTO convertToUsersDTO(Users users){
+		return new UsersDTO(users.getUsername(),users.getEmail());
+	}
 }

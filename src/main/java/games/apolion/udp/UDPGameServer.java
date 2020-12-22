@@ -115,7 +115,7 @@ public class UDPGameServer implements Runnable {
 			MessageObject mObj = messageFactory.parse(received,address,port);
 			if( mObj != null )
 				globalQueue.add(mObj);
-			LOG.debug(address.getHostAddress() + "|" + port + "|" + received);
+			LOG.info(address.getHostAddress() + "|" + port + "|" + received);
 //			try {
 //				socket.send(packet);
 //			} catch (IOException e) {
