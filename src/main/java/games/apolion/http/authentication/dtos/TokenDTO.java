@@ -1,9 +1,9 @@
-package games.apolion.http.authentication;
+package games.apolion.http.authentication.dtos;
 
 import java.net.InetAddress;
 import java.util.Date;
 
-public class Token {
+public class TokenDTO {
 	public String token;
 	public Date ExpirationDate;
 	public InetAddress ip;
@@ -49,7 +49,7 @@ public class Token {
 		this.port = port;
 	}
 
-	public Token(String token) {
+	public TokenDTO(String token) {
 		super();
 		this.token = token;
 		Date temp = new Date();
