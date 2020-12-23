@@ -50,7 +50,6 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
-	@ResponseStatus(HttpStatus.CREATED)
 	public void addUser(@RequestBody UsersDTO user, @RequestHeader("g-recaptcha-response") String captcha) {
 		userRepository.save(convertToUsers(user));
 	}
