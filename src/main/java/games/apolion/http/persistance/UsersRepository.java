@@ -1,6 +1,7 @@
 package games.apolion.http.persistance;
 import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface UsersRepository extends PagingAndSortingRepository<Users, Long> {
 	//@Query(value ="select username,email,'*****' as passwordhash from users ", nativeQuery = true)
 	List<Users> findAll();
-	Users  findByUsernameAndPasswordhash(String username,String passwordhash);
+	Optional<Users> findByUsernameAndPasswordhash(String username, String passwordhash);
+	Users  findByEmailAndPasswordhash(String email,String passwordhash);
 	Users findByEmail(String email);
 	//@Query(value ="select username,email,'*****' as passwordhash from users where username = ?1", nativeQuery = true)
 	Users findByUsername(String username);

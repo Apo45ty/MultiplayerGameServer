@@ -5,10 +5,11 @@ import java.util.Date;
 
 public class TokenDTO {
 	public String token;
-	public Date ExpirationDate;
+	public Date expirationDate;
 	public InetAddress ip;
 	public int port = -1;
 	public int chatPort = -1;
+
 	public int getChatPort() {
 		return chatPort;
 	}
@@ -26,11 +27,11 @@ public class TokenDTO {
 	}
 
 	public Date getExpirationDate() {
-		return ExpirationDate;
+		return expirationDate;
 	}
 
 	public void setExpirationDate(Date expirationDate) {
-		ExpirationDate = expirationDate;
+		expirationDate = expirationDate;
 	}
 
 	public InetAddress getIp() {
@@ -53,7 +54,15 @@ public class TokenDTO {
 		super();
 		this.token = token;
 		Date temp = new Date();
-		ExpirationDate = new Date(temp.getYear(), temp.getMonth(), temp.getDay(), temp.getHours() + 1, temp.getMinutes());
+		expirationDate = new Date(temp.getYear(), temp.getMonth(), temp.getDay(), temp.getHours() + 1, temp.getMinutes());
 	}
-	
+	public TokenDTO(){}
+
+	public TokenDTO(String token, Date expirationDate, InetAddress ip, int port, int chatPort) {
+		this.token = token;
+		this.expirationDate = expirationDate;
+		this.ip = ip;
+		this.port = port;
+		this.chatPort = chatPort;
+	}
 }

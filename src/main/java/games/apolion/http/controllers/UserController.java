@@ -101,7 +101,7 @@ public class UserController {
 //	
 	@PostMapping(path = "/login", consumes = "application/json", produces = "application/json")
 	public TokenDTO getUserTokenForApi(@RequestBody UsersDTO user, HttpServletRequest request, @RequestHeader("g-recaptcha-response") String captcha) {
-		Users userInfo = userRepository.findByUsernameAndPasswordhash(user.getUsername(), user.getPasswordhash());
+		Users userInfo = userRepository.findByEmailAndPasswordhash(user.getEmail(), user.getPasswordhash());
 		if (userInfo != null) {
 			for (Session t : sessions) {
 				if (t.u.getUsername().equals(user.getUsername())) {

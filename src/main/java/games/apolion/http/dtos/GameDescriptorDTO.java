@@ -14,7 +14,6 @@ public class GameDescriptorDTO {
 	public GameServerStates state;
 	public String errorMessage;
 	public GameDescriptorDTO() {
-		// TODO Auto-generated constructor stub
 	}
 	public GameDescriptorDTO(String serverName, int port, String ip, Iterable<String> users, String host) {
 		super();
