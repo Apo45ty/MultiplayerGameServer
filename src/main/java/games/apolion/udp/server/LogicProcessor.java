@@ -1,4 +1,6 @@
-package games.apolion.udp;
+package games.apolion.udp.server;
+
+import games.apolion.udp.server.entities.GameStateLogic;
 
 public class LogicProcessor implements Runnable {
 	
@@ -21,7 +23,7 @@ public class LogicProcessor implements Runnable {
 		}
 	}
 	
-	void addLogicForState(GameServerStates state,GameStateLogic stateLogic) {
+	void addLogicForState(GameServerStates state, GameStateLogic stateLogic) {
 		logicPerState.addLogicForState(state,stateLogic);
 	}
 	

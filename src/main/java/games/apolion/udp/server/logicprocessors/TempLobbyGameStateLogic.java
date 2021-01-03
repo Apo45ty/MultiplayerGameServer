@@ -1,9 +1,13 @@
-package games.apolion.udp;
+package games.apolion.udp.server.logicprocessors;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 
 import games.apolion.http.authentication.Session;
+import games.apolion.udp.server.entities.GameStateLogic;
+import games.apolion.udp.server.UDPGameServer;
+import games.apolion.udp.server.messages.MessageObject;
+import games.apolion.udp.server.messages.MessageType;
 
 public class TempLobbyGameStateLogic implements GameStateLogic {
 
@@ -13,14 +17,7 @@ public class TempLobbyGameStateLogic implements GameStateLogic {
 		if(mObj == null)
 			return;
 		if(mObj.getType() == MessageType.Chat||mObj.getType() == MessageType.RegisterPort) {
-			String messageToken = mObj.get("token");
-			if(messageToken.trim().contains(owner.getHost().t.token)){
-				try{
-					owner.getHost().t.port = Integer.parseInt(mObj.get("port"));
-				}catch(Exception e) {
-					System.err.print("Could not parse port"+e.getMessage());
-				}
-			}
+			String messageToken = mObj.get("tokh nu8en");
 			for(Session s : owner.getUsersInGame()) {
 				if(messageToken.trim().contains(s.t.token)){
 					try{
@@ -47,18 +44,7 @@ public class TempLobbyGameStateLogic implements GameStateLogic {
 							}
 						}
 					}
-					if(owner.getHost().t.ip != null && owner.getHost().t.port > 0 ) {
-						byte[] buf = new byte[UDPGameServer.bufSize];
-						buf = (mObj.getMessage()+"token:"+owner.getHost().t.token).getBytes();
-						DatagramPacket packet = new DatagramPacket(buf, buf.length, owner.getHost().t.ip, owner.getHost().t.port);
-						
-//						System.out.println(s.t.ip+ "|" + s.t.port + "|" + received);
-						try {
-							owner.getSocket().send(packet);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
+
 				}catch(Exception e) {
 					System.err.print("Could not send message to given client"+e.getMessage());
 				}

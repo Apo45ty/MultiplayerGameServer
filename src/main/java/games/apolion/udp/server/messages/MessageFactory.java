@@ -1,4 +1,6 @@
-package games.apolion.udp;
+package games.apolion.udp.server.messages;
+
+import games.apolion.udp.server.messages.MessageObject;
 
 import java.net.InetAddress;
 

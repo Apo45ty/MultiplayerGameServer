@@ -1,4 +1,4 @@
-package games.apolion.udp;
+package games.apolion.udp.server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import games.apolion.udp.server.entities.GameStateLogic;
+import games.apolion.udp.server.messages.MessageFactory;
+import games.apolion.udp.server.messages.MessageObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,6 @@ public class UDPGameServer implements Runnable {
 	Logger LOG = LoggerFactory.getLogger(UDPGameServer.class);
 	private int basePort;
 	private List<Session> usersInGame = new LinkedList<Session>();
-	private Session host = null;
 	private String name;
 	private DatagramSocket socket;
 	public boolean running;
@@ -60,7 +62,7 @@ public class UDPGameServer implements Runnable {
         this.name = name;
 	}
 	
-	public void addLogicForState(GameServerStates state,GameStateLogic stateLogic) {
+	public void addLogicForState(GameServerStates state, GameStateLogic stateLogic) {
 		processor.addLogicForState(state,stateLogic);
 	}
 	
@@ -72,13 +74,6 @@ public class UDPGameServer implements Runnable {
 		this.state = state;
 	}
 
-	public Session getHost() {
-		return host;
-	}
-
-	public void setHost(Session host) {
-		this.host = host;
-	}
 
 	public boolean addUser(Session u) {
 		return usersInGame.add(u);

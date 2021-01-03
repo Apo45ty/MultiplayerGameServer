@@ -1,4 +1,6 @@
-package games.apolion.udp;
+package games.apolion.udp.server;
+
+import games.apolion.udp.server.entities.GameStateLogic;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,13 +8,13 @@ import java.util.List;
 public class StateEnumStateProcessor {
 	private List<StateAndStateLogic> ss=new LinkedList<StateAndStateLogic>();
 	
-	GameStateLogic getLogicForState(GameServerStates state) {
+	public GameStateLogic getLogicForState(GameServerStates state) {
 		for(StateAndStateLogic s :ss)
 			if(state == s.states)
 				return s.LogicForState;
 		return null;
 	}
-	void addLogicForState(GameServerStates state,GameStateLogic stateLogic) {
+	public void addLogicForState(GameServerStates state, GameStateLogic stateLogic) {
 		ss.add(new StateAndStateLogic(stateLogic,state));
 	}
 	

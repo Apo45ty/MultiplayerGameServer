@@ -1,16 +1,12 @@
 package games.apolion.http.dtos;
 
-import java.util.List;
-
-import games.apolion.http.persistance.Users;
-import games.apolion.udp.GameServerStates;
+import games.apolion.udp.server.GameServerStates;
 
 public class GameDescriptorDTO {
 	public String serverName;
 	public int port;
 	public String ip;
 	public Iterable<String> users;
-	public String host;
 	public GameServerStates state;
 	public String errorMessage;
 	public GameDescriptorDTO() {
@@ -21,15 +17,8 @@ public class GameDescriptorDTO {
 		this.port = port;
 		this.ip = ip;
 		this.users = users;
-		this.host=host;
 	}
-	
-	public String getHost() {
-		return host;
-	}
-	public void setHost(Users host) {
-		this.host = host.getUsername();
-	}
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}

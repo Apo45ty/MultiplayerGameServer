@@ -1,36 +1,27 @@
 package games.apolion.http.controllers;
 
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
-import games.apolion.http.dtos.UsersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import games.apolion.http.authentication.Session;
-import games.apolion.http.authentication.dtos.TokenDTO;
-import games.apolion.http.persistance.Users;
 import games.apolion.http.persistance.UsersRepository;
 import games.apolion.http.recaptcha.ICaptchaService;
 import games.apolion.http.dtos.GameDescriptorDTO;
 import games.apolion.http.updConfig.UPDServerConfig;
-import games.apolion.udp.GameServerStates;
-import games.apolion.udp.TempInGameGameStateLogic;
-import games.apolion.udp.TempLobbyGameStateLogic;
-import games.apolion.udp.TempMessageFactory;
-import games.apolion.udp.ThreadGame;
-import games.apolion.udp.UDPGameServer;
+import games.apolion.udp.server.GameServerStates;
+import games.apolion.udp.server.logicprocessors.TempInGameGameStateLogic;
+import games.apolion.udp.server.logicprocessors.TempLobbyGameStateLogic;
+import games.apolion.udp.server.messages.TempMessageFactory;
+import games.apolion.udp.server.entities.ThreadGame;
+import games.apolion.udp.server.UDPGameServer;
 @CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping(value="/games")
@@ -133,8 +124,6 @@ public class UDPServerController {
         if (!secret.equalsIgnoreCase("secret"))
             return false;
         for(ThreadGame game:GameServersInfo) {
-            if(game.server.getHost()!=null)
-                game.server.getHost().serverInstanceJoined = null;
             for(Session s:game.server.getUsersInGame()) {
                 s.serverInstanceJoined = null;
             }
@@ -164,8 +153,6 @@ public class UDPServerController {
                     usernames.add(s.u.getUsername());
                 }
                 descriptor.users = usernames;
-                if (tg.server.getHost() != null)
-                    descriptor.host = tg.server.getHost().u.getUsername();
                 descriptor.state = tg.server.getState();
                 return descriptor;
             }
@@ -183,44 +170,42 @@ public class UDPServerController {
                 for (Session s : tg.server.getUsersInGame()) {
                     usernames.add(s.u.getUsername());
                 }
-                if (tg.server.getHost() != null)
-                    usernames.add(tg.server.getHost().u.getUsername());
             }
         }
         return usernames;
     }
 
-    @PostMapping(path = "/HostGame", consumes = "application/json", produces = "application/json")
-    public GameDescriptorDTO hostGame(@RequestHeader("accesstoken") String token) {
-        Session session = UserController.hasToken(token);
-        if (session == null)
-            return null;
-        if (session.serverInstanceJoined != null)
-            return null;
-        UDPGameServer server = null;
-        for (ThreadGame tg : GameServersInfo) {
-            if (tg.server.getHost() == null) {
-                server = tg.server;
-                break;
-            }
-        }
-        if (server != null) {
-            GameDescriptorDTO descriptor = new GameDescriptorDTO();
-            descriptor.port = server.getPort();
-            descriptor.ip = server.getIP();
-            descriptor.serverName = server.getName();
-            List<String> usernames = new LinkedList<String>();
-            for (Session u : server.getUsersInGame()) {
-                usernames.add(u.u.getUsername());
-            }
-            descriptor.users = usernames;
-            descriptor.host = session.u.getUsername();
-            session.serverInstanceJoined = server;
-            server.setHost(session);
-            return descriptor;
-        }
-        return null;
-    }
+//    @PostMapping(path = "/HostGame", consumes = "application/json", produces = "application/json")
+//    public GameDescriptorDTO hostGame(@RequestHeader("accesstoken") String token) {
+//        Session session = UserController.hasToken(token);
+//        if (session == null)
+//            return null;
+//        if (session.serverInstanceJoined != null)
+//            return null;
+//        UDPGameServer server = null;
+//        for (ThreadGame tg : GameServersInfo) {
+//            if (tg.server.getHost() == null) {
+//                server = tg.server;
+//                break;
+//            }
+//        }
+//        if (server != null) {
+//            GameDescriptorDTO descriptor = new GameDescriptorDTO();
+//            descriptor.port = server.getPort();
+//            descriptor.ip = server.getIP();
+//            descriptor.serverName = server.getName();
+//            List<String> usernames = new LinkedList<String>();
+//            for (Session u : server.getUsersInGame()) {
+//                usernames.add(u.u.getUsername());
+//            }
+//            descriptor.users = usernames;
+//            descriptor.host = session.u.getUsername();
+//            session.serverInstanceJoined = server;
+//            server.setHost(session);
+//            return descriptor;
+//        }
+//        return null;
+//    }
 
     @PostMapping(path = "/JoinAnyGame", consumes = "application/json", produces = "application/json")
     public GameDescriptorDTO joinAnyGame(@RequestHeader("accesstoken") String token) {
@@ -235,8 +220,6 @@ public class UDPServerController {
         descriptor.port = server.getPort();
         descriptor.ip = server.getIP();
         descriptor.serverName = server.getName();
-        if (server.getHost() != null)
-            descriptor.host = server.getHost().u.getUsername();
         session.serverInstanceJoined = server;
         if (!server.addUser(session))
             System.err.print("error adding user to game");
@@ -256,13 +239,11 @@ public class UDPServerController {
             return null;
         if (session.serverInstanceJoined == null)
             return null;
-        if (session.serverInstanceJoined.getHost() == session) {
-            session.serverInstanceJoined.setHost(null);
-        } else {
-            if (!session.serverInstanceJoined.removeUser(session)) {
-                System.err.print("Error removing user from game");
-            }
+
+        if (!session.serverInstanceJoined.removeUser(session)) {
+            System.err.print("Error removing user from game");
         }
+
         session.serverInstanceJoined = null;
         return null;
     }
