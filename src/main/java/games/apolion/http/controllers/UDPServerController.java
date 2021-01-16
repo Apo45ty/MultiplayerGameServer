@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,6 @@ import games.apolion.http.dtos.GameDescriptorDTO;
 import games.apolion.http.updConfig.UPDServerConfig;
 import games.apolion.udp.server.GameServerStates;
 import games.apolion.udp.server.logicprocessors.TempInGameGameStateLogic;
-import games.apolion.udp.server.logicprocessors.TempLobbyGameStateLogic;
 import games.apolion.udp.server.messages.TempMessageFactory;
 import games.apolion.udp.server.entities.ThreadGame;
 import games.apolion.udp.server.UDPGameServer;
@@ -30,6 +31,7 @@ public class UDPServerController {
     public static int maxNumberOfServers = 2;
     List<ThreadGame> GameServersInfo = new LinkedList<ThreadGame>();
 
+    Logger LOG = LoggerFactory.getLogger(UDPServerController.class);
 
     @PostConstruct
     public void init(){
@@ -61,7 +63,7 @@ public class UDPServerController {
             tg.runningGameT = UDPServer;
             server.setState(GameServerStates.InGame);
             GameServersInfo.add(tg);
-            server.addLogicForState(GameServerStates.Lobby, new TempLobbyGameStateLogic());
+//            server.addLogicForState(GameServerStates.Lobby, new TempLobbyGameStateLogic());
             server.addLogicForState(GameServerStates.InGame, new TempInGameGameStateLogic());
 
 //			/** DEBUGGING MODE **/
@@ -70,7 +72,6 @@ public class UDPServerController {
 ////			try {
 ////				s.t.ip = InetAddress.getLocalHost();
 ////			} catch (UnknownHostException e) {
-////				// TODO Auto-generated catch block
 ////				e.printStackTrace();
 ////			}
 ////			s.u = new Users();
@@ -82,7 +83,6 @@ public class UDPServerController {
 ////			try {
 ////				s.t.ip = InetAddress.getLocalHost();
 ////			} catch (UnknownHostException e) {
-////				// TODO Auto-generated catch block
 ////				e.printStackTrace();
 ////			}
 ////			s.u = new Users();
@@ -95,7 +95,6 @@ public class UDPServerController {
 ////				try {
 ////					s.t.ip = InetAddress.getLocalHost();
 ////				} catch (UnknownHostException e) {
-////					// TODO Auto-generated catch block
 ////					e.printStackTrace();
 ////				}
 ////				s.u = new Users();
@@ -221,14 +220,17 @@ public class UDPServerController {
         descriptor.ip = server.getIP();
         descriptor.serverName = server.getName();
         session.serverInstanceJoined = server;
-        if (!server.addUser(session))
+        if (!server.addUser(session)){
             System.err.print("error adding user to game");
+            return null;
+        }
         List<String> usernames = new LinkedList<String>();
         for (Session s : server.getUsersInGame()) {
             usernames.add(s.u.getUsername());
         }
         descriptor.users = usernames;
         descriptor.state = server.getState();
+        LOG.info("Joining Player "+session.u.getEmail()+" to "+server.getName());
         return descriptor;
     }
 

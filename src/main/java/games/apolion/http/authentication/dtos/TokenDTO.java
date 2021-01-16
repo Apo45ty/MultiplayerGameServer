@@ -8,15 +8,6 @@ public class TokenDTO {
 	public Date expirationDate;
 	public InetAddress ip;
 	public int port = -1;
-	public int chatPort = -1;
-
-	public int getChatPort() {
-		return chatPort;
-	}
-
-	public void setChatPort(int chatPort) {
-		this.chatPort = chatPort;
-	}
 
 	public String getToken() {
 		return token;
@@ -63,6 +54,5 @@ public class TokenDTO {
 		this.expirationDate = expirationDate;
 		this.ip = ip;
 		this.port = port;
-		this.chatPort = chatPort;
 	}
 }

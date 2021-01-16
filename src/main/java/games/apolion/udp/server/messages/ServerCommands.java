@@ -3,14 +3,14 @@ package games.apolion.udp.server.messages;
 public enum ServerCommands {
 	chat("chat"),
 	registerPort("registerPort"),
+	portHasBeenRegister("portHasBeenRegistered"),
 	movePile("movePile"),
 	movePlayer("MovePlayer"),
 	moveItem("moveItem"),
 	addItemToInventoryv("addItemToInventory"),
 	addEffectToPlayer("	addEffectToPlayer"),
-	instantiatePile("instantiatePile"),
-	instantiatePlayer("instantiatePlayer"),
-	inputCommand("inputComands"),
+	instantiateNewPlayer("instantiateNewPlayer"),
+	inputCommand("inputCommands"),
 	setPosRot("setPositionAndRotation");
 	
 	private ServerCommands(String s) {
