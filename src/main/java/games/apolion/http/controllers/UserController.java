@@ -114,6 +114,7 @@ public class UserController {
 			String token = bytes.toString();
 			TokenDTO t = new TokenDTO(token);
 			Session entry = new Session();
+			t.username=userInfo.getUsername();
 			entry.t = t;
 			entry.u = userInfo;
 			sessions.add(entry);

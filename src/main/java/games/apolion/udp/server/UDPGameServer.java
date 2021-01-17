@@ -122,7 +122,6 @@ public class UDPGameServer implements Runnable {
 		try {
 			logicThread.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

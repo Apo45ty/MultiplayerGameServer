@@ -24,7 +24,7 @@ public class TempInGameGameStateLogic implements GameStateLogic {
 		//LOG.info(mObj.getMessage());
 		if (mObj == null)
 			return;
-		String strToken = mObj.get("token");
+		String strToken = mObj.get("token").trim();
 		Session senderSession = null;
 		for (Session s : owner.getUsersInGame())
 		{
@@ -67,7 +67,7 @@ public class TempInGameGameStateLogic implements GameStateLogic {
 		} else if (mObj.getType() == ServerCommands.setPosRot) {
 			try {
 				for (Session s : owner.getUsersInGame()) {
-					if(s.t.token.equals(mObj.get("token")))
+					if(s.t.token.equals(senderSession.t.token))
 						continue;
 					if (s.t.ip != null && s.t.port > 0) {
 						byte[] buf = new byte[UDPGameServer.bufSize];
@@ -92,6 +92,8 @@ public class TempInGameGameStateLogic implements GameStateLogic {
 	private void SendNewPlayerRegister(UDPGameServer owner, MessageObject mObj, Session senderSession) {
 		for (Session s : owner.getUsersInGame()) {
 			if (s.t.ip != null && s.t.port > 0) {
+				if(s.t.token.equals(senderSession.t.token))
+					continue;
 				byte[] buf = new byte[UDPGameServer.bufSize];
 				buf = ( ServerCommands.instantiateNewPlayer.commandStr+": "+ " user:"+senderSession.u.getUsername()+" "+destinationTokenDelimiter + s.t.token).getBytes();
 				DatagramPacket packet = new DatagramPacket(buf, buf.length, s.t.ip, s.t.port);

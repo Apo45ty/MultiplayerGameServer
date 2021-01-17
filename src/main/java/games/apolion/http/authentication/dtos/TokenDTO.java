@@ -4,10 +4,19 @@ import java.net.InetAddress;
 import java.util.Date;
 
 public class TokenDTO {
+	public String username;
 	public String token;
 	public Date expirationDate;
 	public InetAddress ip;
 	public int port = -1;
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
 	public String getToken() {
 		return token;
@@ -50,6 +59,14 @@ public class TokenDTO {
 	public TokenDTO(){}
 
 	public TokenDTO(String token, Date expirationDate, InetAddress ip, int port, int chatPort) {
+		this.token = token;
+		this.expirationDate = expirationDate;
+		this.ip = ip;
+		this.port = port;
+	}
+
+	public TokenDTO(String username, String token, Date expirationDate, InetAddress ip, int port) {
+		this.username = username;
 		this.token = token;
 		this.expirationDate = expirationDate;
 		this.ip = ip;
